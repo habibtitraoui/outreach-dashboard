@@ -1,0 +1,50 @@
+# Credential file (NEVER commit your app password)
+.gmail_app_password
+
+# Runtime / generated logs
+sent_log.csv
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+
+# OS
+.DS_Store
+Thumbs.db
+.sudo_as_admin_successful
+
+# Editor
+*.swp
+*.swo
+*~
+
+# Intermediate OCR data (not needed to run the project)
+_work/ocr_tiles/
+_work/ocr_tiles2/
+_work/ocr_raw.json
+_work/ocr2_log.txt
+_work/ocr_log.txt
+_work/ocr_tile.py
+_work/ocr_tile2.py
+_work/ocr_tiles.py
+_work/run_ocr.sh
+_work/run_ocr2.sh
+_work/city_col.json
+_work/city_ocr.py
+_work/parse2.py
+_work/parse3.py
+_work/parse4.py
+_work/parse5.py
+_work/parse_ocr.py
+_work/leads_raw.csv
+_work/patch_leads.py
+
+# Backup
+*.bak
+
+# Generated preview files (regenerate with _work/make_preview.py)
+previews/
+email_previews.html

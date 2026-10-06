@@ -1,0 +1,14 @@
+{
+  "file": "leads_active.csv",
+  "label": "EduFormation_Leads-Gulf Leads.csv",
+  "uploaded": "2026-10-03T22:39:29",
+  "report": {
+    "delimiter": ",",
+    "unmapped": [],
+    "rows": 161,
+    "emailable": 94,
+    "duplicates_merged": 1,
+    "invalid_emails": [],
+    "angles_inferred": 0
+  }
+}

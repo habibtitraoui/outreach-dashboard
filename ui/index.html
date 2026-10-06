@@ -1,0 +1,954 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Outreach Dashboard — Gulf Training Centres</title>
+<style>
+  :root{
+    --bg:#0e1420; --panel:#151d2c; --panel2:#1b2536; --line:#26324a;
+    --txt:#e8edf6; --dim:#8fa0bd; --dim2:#6b7c99;
+    --accent:#4f8ff7; --accent2:#2fbf8f; --warn:#e8a33d; --err:#e8635f;
+    --high:#2fbf8f; --med:#e8a33d; --low:#7f8ea8;
+    --radius:12px; --shadow:0 10px 30px rgba(0,0,0,.35);
+    font-synthesis-weight:none;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0;background:var(--bg);color:var(--txt);
+    font:14px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  button,input,select,textarea{font:inherit;color:inherit}
+  a{color:var(--accent);text-decoration:none}
+  ::-webkit-scrollbar{width:10px;height:10px}
+  ::-webkit-scrollbar-thumb{background:#2b3852;border-radius:6px}
+  ::-webkit-scrollbar-track{background:transparent}
+
+  .app{display:grid;grid-template-columns:236px 1fr;min-height:100vh}
+
+  /* ---------------- sidebar ---------------- */
+  .side{background:#0b111c;border-right:1px solid var(--line);padding:20px 14px;position:sticky;top:0;height:100vh;display:flex;flex-direction:column;gap:6px}
+  .brand{display:flex;align-items:center;gap:10px;padding:6px 8px 18px}
+  .logo{width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,#4f8ff7,#2fbf8f);display:grid;place-items:center;font-weight:800;font-size:15px;color:#0b111c}
+  .brand h1{margin:0;font-size:15px;letter-spacing:.2px}
+  .brand small{display:block;color:var(--dim2);font-size:11px;font-weight:500;letter-spacing:.3px}
+  .nav{display:flex;flex-direction:column;gap:4px}
+  .nav button{
+    display:flex;align-items:center;gap:10px;background:none;border:0;text-align:left;
+    padding:9px 10px;border-radius:9px;color:var(--dim);cursor:pointer;font-weight:500;
+  }
+  .nav button:hover{background:#131c2b;color:var(--txt)}
+  .nav button.on{background:#16233a;color:#fff;box-shadow:inset 2px 0 0 var(--accent)}
+  .nav svg{width:16px;height:16px;flex:none;opacity:.9}
+  .side .foot{margin-top:auto;padding:12px 10px;color:var(--dim2);font-size:11.5px;line-height:1.6;border-top:1px solid var(--line)}
+  .side .foot b{color:var(--dim);font-weight:600}
+
+  /* ---------------- main ---------------- */
+  main{padding:22px 26px 60px;max-width:1500px}
+  .head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:18px;flex-wrap:wrap}
+  .head h2{margin:0 0 4px;font-size:21px;letter-spacing:.2px}
+  .head p{margin:0;color:var(--dim);font-size:13px}
+  .btn{
+    border:1px solid var(--line);background:var(--panel2);padding:9px 14px;border-radius:9px;
+    cursor:pointer;font-weight:600;display:inline-flex;align-items:center;gap:8px;
+  }
+  .btn:hover{border-color:#33456a;background:#22304a}
+  .btn.primary{background:var(--accent);border-color:var(--accent);color:#08111f}
+  .btn.primary:hover{background:#6aa0f8}
+  .btn.ghost{background:transparent}
+  .btn:disabled{opacity:.45;cursor:not-allowed}
+  .btn.danger{border-color:#5a2b2c;color:#ffb3b0;background:#2a1719}
+
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-bottom:18px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px}
+  .card .k{color:var(--dim2);font-size:11.5px;text-transform:uppercase;letter-spacing:.7px;font-weight:600}
+  .card .v{font-size:26px;font-weight:700;margin-top:6px;letter-spacing:.4px}
+  .card .s{color:var(--dim2);font-size:12px;margin-top:2px}
+  .card.accent .v{color:#8fb8ff}
+  .card.good .v{color:var(--accent2)}
+  .card.warn .v{color:var(--warn)}
+
+  .toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
+  .search{position:relative;flex:1;min-width:220px}
+  .search input{width:100%;padding:10px 12px 10px 34px;border-radius:10px;border:1px solid var(--line);background:var(--panel);outline:none}
+  .search input:focus{border-color:var(--accent)}
+  .search svg{position:absolute;left:11px;top:11px;width:15px;height:15px;color:var(--dim2)}
+  select,input[type=text],input[type=number],input[type=password],textarea{
+    background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 12px;outline:none;
+  }
+  select:focus,input:focus,textarea:focus{border-color:var(--accent)}
+  .chips{display:flex;gap:6px;flex-wrap:wrap}
+  .chip{border:1px solid var(--line);background:var(--panel);padding:7px 12px;border-radius:999px;cursor:pointer;color:var(--dim);font-size:13px}
+  .chip.on{background:#16233a;color:#fff;border-color:#2c4470}
+
+  table{width:100%;border-collapse:separate;border-spacing:0;background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+  thead th{
+    position:sticky;top:0;background:#16203270;backdrop-filter:blur(6px);text-align:left;
+    font-size:11.5px;text-transform:uppercase;letter-spacing:.7px;color:var(--dim2);
+    padding:11px 12px;border-bottom:1px solid var(--line);font-weight:700;cursor:pointer;white-space:nowrap;
+  }
+  tbody td{padding:10px 12px;border-bottom:1px solid #1e293d;vertical-align:middle;font-size:13.5px}
+  tbody tr:hover{background:#182238}
+  tbody tr:last-child td{border-bottom:0}
+  tbody tr.clickable{cursor:pointer}
+  .org{font-weight:600}
+  .sub{color:var(--dim2);font-size:12px}
+  .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:12.5px}
+  .pill{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:999px;font-size:11.5px;font-weight:600;border:1px solid transparent;white-space:nowrap}
+  .pill.high{background:#123024;color:#63d9a8;border-color:#1d5440}
+  .pill.medium{background:#33270f;color:#f0c274;border-color:#5a4318}
+  .pill.low{background:#1d2534;color:#a8b6cd;border-color:#2c3852}
+  .pill.sent{background:#12304a;color:#8fc4ff;border-color:#1d4a70}
+  .pill.ready{background:#16243a;color:#9fb3d1;border-color:#26374f}
+  .pill.none{background:#2a1a1c;color:#f0a6a3;border-color:#4d2a2c}
+  .pill.angle{background:#1a2233;color:#b9c8e2;border-color:#2b3850}
+  .dot{width:7px;height:7px;border-radius:50%;background:currentColor;display:inline-block}
+
+  /* ---------------- drawer ---------------- */
+  .scrim{position:fixed;inset:0;background:rgba(5,9,16,.6);opacity:0;pointer-events:none;transition:.2s;z-index:40}
+  .scrim.on{opacity:1;pointer-events:auto}
+  .drawer{
+    position:fixed;top:0;right:0;height:100vh;width:min(620px,94vw);background:#101826;
+    border-left:1px solid var(--line);box-shadow:var(--shadow);transform:translateX(102%);
+    transition:transform .24s cubic-bezier(.4,.2,.2,1);z-index:50;display:flex;flex-direction:column;
+  }
+  .drawer.on{transform:none}
+  .drawer header{padding:16px 20px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:12px}
+  .drawer header h3{margin:0;font-size:16px}
+  .drawer .body{padding:18px 20px;overflow:auto;flex:1}
+  .drawer footer{padding:14px 20px;border-top:1px solid var(--line);display:flex;gap:10px;align-items:center;justify-content:flex-end;background:#0d1522}
+  .close{background:none;border:0;color:var(--dim);cursor:pointer;font-size:20px;line-height:1;padding:4px 6px;border-radius:8px}
+  .close:hover{background:#1c2637;color:#fff}
+
+  .field{margin-bottom:16px}
+  .field label{display:block;font-size:12px;text-transform:uppercase;letter-spacing:.6px;color:var(--dim2);font-weight:700;margin-bottom:6px}
+  .field .hint{color:var(--dim2);font-size:12px;margin-top:6px;line-height:1.5}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .radios{display:flex;gap:8px;flex-wrap:wrap}
+  .radios label{
+    flex:1;min-width:150px;border:1px solid var(--line);border-radius:10px;padding:10px 12px;cursor:pointer;
+    text-transform:none;letter-spacing:0;font-weight:500;background:var(--panel);color:var(--dim);font-size:13px;
+  }
+  .radios label b{display:block;color:var(--txt);font-size:13.5px;margin-bottom:2px}
+  .radios input{display:none}
+  .radios input:checked + label{border-color:var(--accent);background:#16233a;color:#dbe7ff}
+  .swatches{display:flex;gap:8px;flex-wrap:wrap}
+  .swatch{border:1px solid var(--line);background:var(--panel);border-radius:8px;padding:6px 10px;cursor:pointer;font-size:12px;color:var(--dim)}
+  .swatch.on{border-color:var(--accent);color:#fff;background:#16233a}
+
+  .console{
+    background:#080d16;border:1px solid var(--line);border-radius:10px;padding:12px;
+    font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:12px;line-height:1.65;
+    height:210px;overflow:auto;white-space:pre-wrap;color:#a9bad6;
+  }
+  .console .ok{color:#6fe0b0}.console .err{color:#ff9d99}.console .warn{color:#f0c274}
+  .bar{height:8px;border-radius:99px;background:#1d2637;overflow:hidden;margin:10px 0 6px}
+  .bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--accent),var(--accent2));transition:width .3s}
+
+  .mail{background:#0c131f;border:1px solid var(--line);border-radius:12px;overflow:hidden}
+  .mail .mh{padding:12px 14px;border-bottom:1px solid var(--line);background:#101a28;font-size:12.5px;color:var(--dim)}
+  .mail .mh b{color:var(--txt)}
+  .mail .mh div{margin-bottom:3px}
+  .mail .mb{padding:16px;white-space:pre-wrap;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:12.5px;line-height:1.7;color:#d6e2f5}
+  mark{background:#3a4f7a;color:#fff;border-radius:3px;padding:0 3px}
+
+  .empty{padding:40px;text-align:center;color:var(--dim2)}
+  .toast{
+    position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(20px);
+    background:#16233a;border:1px solid #2c4470;color:#dbe7ff;padding:11px 18px;border-radius:10px;
+    box-shadow:var(--shadow);opacity:0;transition:.25s;z-index:80;font-weight:500;
+  }
+  .toast.on{opacity:1;transform:translateX(-50%)}
+  .view{display:none}
+  .view.on{display:block}
+  .drop{
+    border:1.5px dashed #33456a;border-radius:14px;padding:26px;text-align:center;
+    background:#111a28;color:var(--dim);margin-bottom:16px;transition:.15s;cursor:pointer;
+  }
+  .drop.hot{border-color:var(--accent);background:#152238;color:#dbe7ff}
+  .drop b{color:#fff}
+  .drop small{display:block;margin-top:6px;color:var(--dim2)}
+  .checks{display:flex;flex-direction:column;gap:6px;margin-top:12px}
+  .chk{display:flex;gap:9px;align-items:flex-start;font-size:12.5px;line-height:1.5;padding:8px 11px;border-radius:9px;border:1px solid var(--line);background:#101a28}
+  .chk .tag{font-size:10.5px;font-weight:700;letter-spacing:.6px;padding:2px 7px;border-radius:6px;flex:none;margin-top:1px}
+  .chk.ok .tag{background:#123024;color:#63d9a8}
+  .chk.warn{background:#2a1f10;border-color:#5a4318}
+  .chk.warn .tag{background:#3a2a0f;color:#f0c274}
+  .chk.info .tag{background:#1d2534;color:#a8b6cd}
+  .result{margin-top:10px;padding:10px 12px;border-radius:9px;font-size:12.5px;line-height:1.55;border:1px solid}
+  .result.ok{background:#123024;border-color:#1d5440;color:#8ce7bd}
+  .result.bad{background:#2a1a1c;border-color:#4d2a2c;color:#ffb3b0}
+  .note{background:#1a2233;border:1px solid #2b3850;border-radius:10px;padding:12px 14px;color:#b9c8e2;font-size:12.5px;line-height:1.6;margin-bottom:16px}
+  .note b{color:#fff}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="side">
+    <div class="brand">
+      <div class="logo">MH</div>
+      <div><h1>Outreach</h1><small>GULF TRAINING CENTRES</small></div>
+    </div>
+    <nav class="nav">
+      <button data-view="leads" class="on">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M3 12h18M3 18h12"/></svg>
+        Leads</button>
+      <button data-view="templates">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16v6H4zM4 14h16v6H4z"/></svg>
+        Templates</button>
+      <button data-view="activity">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 17l5-5 4 3 6-8 3 3"/></svg>
+        Activity</button>
+      <button data-view="settings">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M19 5l-2 2M7 17l-2 2"/></svg>
+        Settings</button>
+    </nav>
+    <div class="foot">
+      Sending as <b id="footFrom">maisterhb@gmail.com</b><br>
+      Password is kept in memory only — never written to disk.
+    </div>
+  </aside>
+
+  <main>
+    <!-- ================= LEADS ================= -->
+    <section class="view on" id="view-leads">
+      <div class="head">
+        <div>
+          <h2>Leads</h2>
+          <p id="leadSub">Extracted from the lead-sheet screenshot · UAE · Qatar · Saudi Arabia</p>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <button class="btn" id="btnUpload">⬆ Upload CSV</button>
+          <button class="btn" id="btnRefresh">Refresh</button>
+          <button class="btn" id="btnSendOpen">Send options</button>
+          <button class="btn primary" id="btnOneClick">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M13 2L4 14h6l-1 8 9-12h-6l1-8z"/></svg>
+            <span id="oneClickLabel">Send 35 today</span></button>
+        </div>
+      </div>
+
+      <div class="note" id="oneClickNote"></div>
+      <div class="drop" id="drop">
+        <b>Drop a leads CSV here</b> — or click to choose a file.
+        <small>Any column names work: organisation, email, country, city, segment, phone, website, notes…
+        Missing pitch angles are assigned automatically from each row.</small>
+        <input type="file" id="file" accept=".csv,text/csv" style="display:none">
+      </div>
+      <div class="note" id="dsNote" style="display:none"></div>
+
+      <div class="cards" id="cards"></div>
+
+      <div class="toolbar">
+        <div class="search">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+          <input id="q" type="text" placeholder="Search organisation, email, city…">
+        </div>
+        <div class="chips" id="countryChips"></div>
+        <select id="fAngle"></select>
+        <select id="fStatus">
+          <option value="">All statuses</option>
+          <option value="ready">Ready to send</option>
+          <option value="sent">Already sent</option>
+          <option value="noemail">No email on file</option>
+        </select>
+      </div>
+
+      <table>
+        <thead><tr>
+          <th data-sort="n">#</th>
+          <th data-sort="organisation">Organisation</th>
+          <th data-sort="city">City</th>
+          <th data-sort="country">Country</th>
+          <th data-sort="segment">Segment</th>
+          <th data-sort="rating">Google</th>
+          <th>Email</th>
+          <th data-sort="archetype">Pitch</th>
+          <th data-sort="state">Status</th>
+        </tr></thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </section>
+
+    <!-- ================= TEMPLATES ================= -->
+    <section class="view" id="view-templates">
+      <div class="head">
+        <div><h2>Email templates</h2>
+          <p>Five angles, taken from your own sheet. Every email picks the paragraph and bullets that match the lead's angle.</p></div>
+        <button class="btn primary" id="saveTpl">Save templates</button>
+      </div>
+      <div class="note">Edits are saved to <b>ui_templates.json</b> and applied on the next send. The greeting, social-proof line, CTA and sign-off are shared and built from Settings.</div>
+      <div id="tplWrap"></div>
+    </section>
+
+    <!-- ================= ACTIVITY ================= -->
+    <section class="view" id="view-activity">
+      <div class="head">
+        <div><h2>Activity</h2><p>Everything the sender has attempted, newest first — from sent_log.csv.</p></div>
+        <button class="btn" id="btnActRefresh">Refresh</button>
+      </div>
+      <table><thead><tr>
+        <th>When</th><th>#</th><th>Organisation</th><th>Email</th><th>Subject</th><th>Status</th>
+      </tr></thead><tbody id="actRows"></tbody></table>
+    </section>
+
+    <!-- ================= SETTINGS ================= -->
+    <section class="view" id="view-settings">
+      <div class="head">
+        <div><h2>Settings</h2><p>Your identity and the sending behaviour. Saved to ui_settings.json.</p></div>
+        <button class="btn primary" id="saveSet">Save settings</button>
+      </div>
+      <div class="cards" style="grid-template-columns:repeat(auto-fit,minmax(320px,1fr))">
+        <div class="card">
+          <div class="k" style="margin-bottom:12px">About you</div>
+          <div id="setForm"></div>
+        </div>
+        <div class="card">
+          <div class="k" style="margin-bottom:12px">Delivery</div>
+          <div id="setForm2"></div>
+          <div class="field" style="margin-top:14px">
+            <label>Sending limits — good to know</label>
+            <div class="hint">A personal Gmail is safest at 30–40 cold emails a day with a 45–90s gap.
+            The send panel enforces the gap; use the “how many” field to cap the batch.</div>
+          </div>
+          <div class="field">
+            <label>Gmail app password</label>
+            <div class="hint">Needed only at send time, and only for a real send. Google Account → Security →
+            2-Step Verification → App passwords. You can also export <span class="mono">GMAIL_APP_PASSWORD</span>
+            before starting the server and the field can stay empty.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<div class="scrim" id="scrim"></div>
+
+<!-- ============ preview drawer ============ -->
+<div class="drawer" id="previewDrawer">
+  <header>
+    <h3 id="pvTitle">Email preview</h3>
+    <button class="close" data-close>×</button>
+  </header>
+  <div class="body">
+    <div id="pvBody"></div>
+    <div id="pvEditWrap" style="display:none">
+      <div class="field"><label>Subject</label>
+        <input type="text" id="pvSubject" style="width:100%"></div>
+      <div class="field"><label>Body</label>
+        <textarea id="pvText" rows="20" style="width:100%"></textarea></div>
+      <div style="display:flex;gap:8px">
+        <button class="btn primary" id="pvSave">Save for this row</button>
+        <button class="btn" id="pvReset">Reset to template</button>
+      </div>
+      <div class="hint" style="margin-top:10px">Saved to <b>ui_overrides.json</b> and used for this row only —
+        the other 93 leads keep their own angle. Exactly what will be sent, word for word.</div>
+    </div>
+  </div>
+  <footer>
+    <span class="sub" id="pvFoot"></span>
+    <button class="btn" id="pvEdit">Edit copy</button>
+    <button class="btn" data-close>Close</button>
+  </footer>
+</div>
+
+<!-- ============ send drawer ============ -->
+<div class="drawer" id="sendDrawer">
+  <header>
+    <h3>Send campaign</h3>
+    <button class="close" data-close>×</button>
+  </header>
+  <div class="body">
+    <div class="field">
+      <label>Mode</label>
+      <div class="radios">
+        <input type="radio" name="mode" id="m1" value="dry"><label for="m1"><b>Dry run</b>Renders everything, sends nothing</label>
+        <input type="radio" name="mode" id="m2" value="test"><label for="m2"><b>Test</b>5 variants to your own inbox</label>
+        <input type="radio" name="mode" id="m3" value="live" checked><label for="m3"><b>Live send</b>Real emails, resumable</label>
+      </div>
+    </div>
+
+    <div class="grid2">
+      <div class="field" id="testToWrap" style="display:none">
+        <label>Test recipient</label>
+        <input type="text" id="testTo" value="maisterhb@gmail.com">
+      </div>
+      <div class="field">
+        <label>How many this run</label>
+        <input type="number" id="sLimit" min="0" placeholder="0 = all remaining">
+      </div>
+      <div class="field">
+        <label>Country</label>
+        <select id="sCountry"><option value="">All</option></select>
+      </div>
+      <div class="field">
+        <label>Angle</label>
+        <div class="swatches" id="sAngles"></div>
+      </div>
+      <div class="field">
+        <label>Gap between sends</label>
+        <div style="display:flex;gap:8px;align-items:center">
+          <input type="number" id="sDmin" value="45" min="0" style="width:90px"> <span class="sub">to</span>
+          <input type="number" id="sDmax" value="90" min="0" style="width:90px"> <span class="sub">seconds</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Gmail app password <span id="pwdTag" class="sub"></span></label>
+      <div style="display:flex;gap:8px">
+        <input type="password" id="sPwd" placeholder="16 characters — e.g. abcd efgh ijkl mnop"
+               autocomplete="off" style="flex:1">
+        <button class="btn" id="btnTestPwd" type="button">Test password</button>
+      </div>
+      <div class="hint" id="pwdHint">
+        This is <b>not</b> your Google account password — Gmail refuses those for SMTP.
+        An app password is 16 characters, created at
+        <b>Google Account → Security → App passwords</b> (2-Step Verification must be on first).
+        It stays in memory for this run only and is never written to disk.
+      </div>
+      <div id="pwdResult" style="display:none"></div>
+      <div style="display:flex;gap:14px;align-items:center;margin-top:12px;flex-wrap:wrap">
+        <label style="display:flex;gap:8px;align-items:center;font-size:13px;color:var(--dim);cursor:pointer">
+          <input type="checkbox" id="sRemember" style="width:15px;height:15px">
+          Remember on this computer — every send after this is one click
+        </label>
+        <button class="btn" id="btnForget" type="button" style="display:none">Forget saved password</button>
+      </div>
+      <div class="hint" style="margin-top:8px">
+        Saved as an owner-only file (<span class="mono">.gmail_app_password</span>, permissions 600) in this
+        folder — never sent anywhere, never in the browser storage. An app password can only send mail,
+        cannot read your inbox, and can be revoked at Google any time. Keep the folder to yourself.
+      </div>
+    </div>
+
+    <div id="runInfo" style="display:none">
+      <div class="bar"><i id="runBar"></i></div>
+      <div class="sub" id="runText" style="margin-bottom:10px"></div>
+    </div>
+    <div class="console" id="console">ready.</div>
+  </div>
+  <footer>
+    <span class="sub" id="sendFoot"></span>
+    <button class="btn danger" id="btnStop" style="display:none">Stop</button>
+    <button class="btn" data-close>Close</button>
+    <button class="btn primary" id="btnStart">Start</button>
+  </footer>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ---------- snapshot mode: works offline in the file viewer ---------- */
+const SNAP = window.__SNAPSHOT_DATA__ || null;
+const SNAP_PREVIEWS = window.__SNAPSHOT_PREVIEWS__ || null;
+const LIVE = !SNAP;
+
+const $ = s => document.querySelector(s);
+const $$ = s => Array.from(document.querySelectorAll(s));
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+let DATA = {leads:[], stats:{}, angles:{}, settings:{}};
+let FILTER = {q:'', country:'', angle:'', status:'', sort:'n', dir:1};
+let ANGLES = {};
+
+async function api(path, opts){
+  const r = await fetch(path, Object.assign({headers:{'Content-Type':'application/json'}}, opts||{}));
+  if(!r.ok){ let e; try{e = await r.json()}catch(_){e={error:r.statusText}} throw new Error(e.error||'request failed'); }
+  return r.json();
+}
+function toast(msg){
+  const t = $('#toast'); t.textContent = msg; t.classList.add('on');
+  clearTimeout(t._h); t._h = setTimeout(()=>t.classList.remove('on'), 2600);
+}
+const ANGLE_NAMES = {A:'WhatsApp/Drive replacement',B:'Self-paced lessons',C:'Compliance portal',D:'White-label video',E:'Branded e-learning'};
+
+/* ------------------------------ state ------------------------------ */
+async function loadState(){
+  if(SNAP){ DATA = SNAP; }
+  else {
+    try{ DATA = await api('/api/state'); }
+    catch(e){
+      document.body.insertAdjacentHTML('afterbegin',
+        `<div style="margin:16px;padding:14px 16px;border-radius:10px;background:#2a1a1c;`+
+        `border:1px solid #4d2a2c;color:#ffb3b0;font:14px system-ui">Could not reach the dashboard API `+
+        `(${esc(e.message)}). If the server stopped, start it again with <b>python3 app.py</b>.</div>`);
+      return;
+    }
+  }
+  DATA.leads = DATA.leads || []; DATA.stats = DATA.stats || {}; DATA.angles = DATA.angles || {};
+  DATA.settings = DATA.settings || {}; DATA.dataset = DATA.dataset || {};
+  ANGLES = DATA.angles || {};
+  $('#footFrom').textContent = (DATA.settings && DATA.settings.from_email) || 'maisterhb@gmail.com';
+  renderOneClick();
+  renderCards(); renderChips(); renderAngleFilter(); renderRows();
+  buildSendForm(); fillSettings();
+}
+function renderCards(){
+  const s = DATA.stats || {};
+  const cards = [
+    {k:'Leads in sheet', v:s.total??0, s:'UAE · Qatar · Saudi Arabia', cls:''},
+    {k:'Emailable', v:s.sendable??0, s:'unique addresses', cls:'accent'},
+    {k:'Already sent', v:s.sent??0, s:'logged in sent_log.csv', cls:'good'},
+    {k:'No email on file', v:s.no_email??0, s:'phone / website only', cls:'warn'},
+  ];
+  if(DATA.dataset && DATA.dataset.label){
+    const n = $('#dsNote');
+    n.style.display='';
+    n.innerHTML = `<b>Active list:</b> ${esc(DATA.dataset.label)}` +
+      (DATA.dataset.uploaded?` · uploaded ${esc(DATA.dataset.uploaded.replace('T',' '))}`:'') +
+      ` · ${(DATA.stats&&DATA.stats.total)||0} rows · ${(DATA.stats&&DATA.stats.sendable)||0} emailable` +
+      (DATA.duplicate_bodies?` · <b style="color:#f0c274">${DATA.duplicate_bodies} duplicate message(s)</b>`:' · every message unique');
+  }
+  renderOneClick();
+  $('#cards').innerHTML = cards.map(c=>`
+    <div class="card ${c.cls}"><div class="k">${c.k}</div><div class="v">${c.v}</div><div class="s">${c.s}</div></div>`).join('');
+}
+function renderChips(){
+  const cs = (DATA.stats && DATA.stats.countries) || [];
+  $('#countryChips').innerHTML =
+    `<div class="chip ${FILTER.country?'':'on'}" data-country="">All</div>` +
+    cs.map(c=>`<div class="chip ${FILTER.country===c?'on':''}" data-country="${esc(c)}">${esc(c)}</div>`).join('');
+  $$('#countryChips .chip').forEach(el=>el.onclick=()=>{ FILTER.country = el.dataset.country; renderChips(); renderRows(); });
+  const sel = $('#sCountry');
+  if(sel) sel.innerHTML = `<option value="">All countries</option>` + cs.map(c=>`<option>${esc(c)}</option>`).join('');
+}
+function renderAngleFilter(){
+  const opts = Object.entries(ANGLES).sort()
+    .map(([k,v])=>`<option value="${k}">${k} — ${ANGLE_NAMES[k]||''} (${v.count})</option>`).join('');
+  $('#fAngle').innerHTML = `<option value="">All pitch angles</option>` + opts;
+}
+function stateOf(l){
+  if(l.sent) return {k:'sent', t:'Sent'};
+  if(!l.sendable) return {k:'noemail', t:'No email'};
+  return {k:'ready', t:'Ready'};
+}
+function filtered(){
+  let rows = DATA.leads.slice();
+  const q = FILTER.q.toLowerCase().trim();
+  if(q) rows = rows.filter(l => (l.organisation+' '+l.email+' '+l.city+' '+l.country+' '+l.segment).toLowerCase().includes(q));
+  if(FILTER.country) rows = rows.filter(l => l.country === FILTER.country);
+  if(FILTER.angle)   rows = rows.filter(l => l.archetype === FILTER.angle);
+  if(FILTER.status)  rows = rows.filter(l => stateOf(l).k === FILTER.status);
+  const key = FILTER.sort;
+  rows.sort((a,b)=>{
+    if(key==='state'){ return stateOf(a).t.localeCompare(stateOf(b).t)*FILTER.dir; }
+    if(key==='rating'){ return ((parseFloat(a.rating)||0)-(parseFloat(b.rating)||0))*FILTER.dir; }
+    if(key==='n'){ return (parseInt(a.n)-parseInt(b.n))*FILTER.dir; }
+    return String(a[key]||'').localeCompare(String(b[key]||''))*FILTER.dir;
+  });
+  return rows;
+}
+function renderRows(){
+  const rows = filtered();
+  $('#leadSub').textContent = `Showing ${rows.length} of ${DATA.leads.length} rows · click any row to preview its email`;
+  if(!rows.length){ $('#rows').innerHTML = `<tr><td colspan="9" class="empty">No rows match these filters.</td></tr>`; return; }
+  $('#rows').innerHTML = rows.map(l=>{
+    const st = stateOf(l);
+    const rev = l.reviews ? ` · ${l.reviews}` : '';
+    return `<tr class="clickable" data-n="${l.n}">
+      <td class="sub">${esc(l.n)}</td>
+      <td><div class="org">${esc(l.organisation)}</div><div class="sub">${esc(l.phone||'')}</div></td>
+      <td>${esc(l.city||'—')}</td>
+      <td>${esc(l.country)}</td>
+      <td class="sub">${esc(l.segment)}</td>
+      <td>${l.rating?`${esc(l.rating)}★<span class="sub">${esc(rev)}</span>`:'<span class="sub">—</span>'}</td>
+      <td class="mono">${l.email?esc(l.email):'<span class="sub">—</span>'}</td>
+      <td><span class="pill angle" title="${esc(l.archetype)}">${esc(l.archetype||'?')} · ${esc((ANGLE_NAMES[l.archetype]||'').split(' ')[0])}</span>
+          <span class="pill ${(l.priority||'').toLowerCase()||'low'}" style="margin-left:4px">${esc(l.priority||'—')}</span></td>
+      <td><span class="pill ${st.k}"><i class="dot"></i>${st.t}</span>${l.custom?'<span class="pill angle" style="margin-left:4px">Custom</span>':''}</td>
+    </tr>`;
+  }).join('');
+  $$('#rows tr.clickable').forEach(tr=>tr.onclick=()=>openPreview(tr.dataset.n));
+}
+$$('thead th[data-sort]').forEach(th=>th.onclick=()=>{
+  const k = th.dataset.sort;
+  FILTER.dir = (FILTER.sort===k) ? -FILTER.dir : 1;
+  FILTER.sort = k; renderRows();
+});
+
+/* ------------------------------ upload ----------------------------- */
+const drop = $('#drop'), fileInput = $('#file');
+drop.onclick = ()=>{ if(!LIVE) return toast('Static snapshot — run app.py to import a CSV'); fileInput.click(); };
+drop.ondragover = e => { e.preventDefault(); drop.classList.add('hot'); };
+drop.ondragleave = () => drop.classList.remove('hot');
+drop.ondrop = e => { e.preventDefault(); drop.classList.remove('hot');
+  const f = e.dataTransfer.files[0]; if(f) uploadFile(f); };
+fileInput.onchange = e => { const f = e.target.files[0]; if(f) uploadFile(f); };
+
+async function uploadFile(file){
+  if(!LIVE) return toast('Static snapshot — run app.py to import a CSV');
+  if(!/\.csv$/i.test(file.name)) return toast('That is not a .csv file');
+  drop.innerHTML = `<b>Reading ${esc(file.name)}…</b>`;
+  const text = await file.text();
+  try{
+    const r = await api('/api/upload', {method:'POST', body: JSON.stringify({filename:file.name, csv:text})});
+    const q = r.report||{};
+    toast(`Imported ${q.rows} rows · ${q.emailable} emailable`);
+    drop.innerHTML = `<b>Drop a leads CSV here</b> — or click to choose a file.
+      <small>Any column names work: organisation, email, country, city, segment, phone, website, notes…
+      Missing pitch angles are assigned automatically from each row.</small>
+      <input type="file" id="file" accept=".csv,text/csv" style="display:none">`;
+    await loadState(); await loadActivity();
+    $('#dsNote').style.display='';
+    $('#dsNote').innerHTML = `<b>${esc(q.filename||file.name)}</b> is now the active list — ${q.rows} rows,
+      ${q.emailable} with a usable email${q.duplicates_merged?`, ${q.duplicates_merged} duplicate address merged`:''}
+      ${q.invalid_emails&&q.invalid_emails.length?`, ${q.invalid_emails.length} invalid address skipped`:''}
+      ${q.angles_inferred?`, ${q.angles_inferred} pitch angles inferred from the row`:''}.`;
+  }catch(e){ toast(e.message);
+    drop.innerHTML = `<b>Could not read that file</b><small>${esc(e.message)}</small>`; }
+}
+
+/* ------------------------------ preview ---------------------------- */
+let PV_N = null;
+function paintPreview(p, n){
+  PV_N = n;
+  $('#pvEditWrap').style.display = 'none';
+  $('#pvBody').style.display = '';
+  $('#pvEdit').textContent = p.custom ? 'Edit copy (customised)' : 'Edit copy';
+  $('#pvSubject').value = p.subject || '';
+  $('#pvText').value = p.body || '';
+  $('#pvTitle').textContent = p.organisation || 'Email preview';
+  $('#pvBody').innerHTML = `
+    <div class="mail">
+      <div class="mh">
+        <div><b>From:</b> ${esc((DATA.settings&&DATA.settings.sender_name)||'')} &lt;${esc(p.from)}&gt;</div>
+        <div><b>To:</b> ${esc(p.to||'—')}</div>
+        <div><b>Subject:</b> ${esc(p.subject)}</div>
+      </div>
+      <div class="mb">${esc(p.body)}</div>
+    </div>
+    ${(p.checks&&p.checks.length)?`<div class="checks">${p.checks.map(c=>
+      `<div class="chk ${c.level}"><span class="tag">${esc(c.level.toUpperCase())}</span><span>${esc(c.msg)}</span></div>`
+      ).join('')}</div>`:''}`;
+  const lead = DATA.leads.find(l=>String(l.n)===String(n));
+  const st = lead ? stateOf(lead) : {t:''};
+  $('#pvFoot').textContent = st.k==='noemail'
+    ? 'No email on file — use phone or website instead'
+    : (st.k==='sent' ? 'Already sent (skip in live mode)' : 'Ready to send');
+}
+$('#pvEdit').onclick = ()=>{
+  const editing = $('#pvEditWrap').style.display !== 'none';
+  $('#pvEditWrap').style.display = editing ? 'none' : '';
+  $('#pvBody').style.display = editing ? '' : 'none';
+  $('#pvEdit').textContent = editing ? 'Edit copy' : 'Back to preview';
+};
+$('#pvSave').onclick = async ()=>{
+  if(!LIVE) return toast('Static snapshot — run app.py to save edits');
+  const body = {n: PV_N, subject: $('#pvSubject').value, body: $('#pvText').value};
+  await api('/api/override', {method:'POST', body: JSON.stringify(body)});
+  toast('Saved — this row now sends exactly this email');
+  await loadState(); await openPreview(PV_N);
+};
+$('#pvReset').onclick = async ()=>{
+  if(!LIVE) return toast('Static snapshot — run app.py to reset');
+  await api('/api/override', {method:'POST', body: JSON.stringify({n: PV_N, clear: true})});
+  toast('Back to the template for this row');
+  await loadState(); await openPreview(PV_N);
+};
+
+async function openPreview(n){
+  if(!DATA.leads.find(l=>String(l.n)===String(n))) return;
+  try{
+    if(SNAP_PREVIEWS && SNAP_PREVIEWS[n]) return paintPreview(SNAP_PREVIEWS[n], n), openDrawer('#previewDrawer');
+    const p = await api('/api/preview?n='+encodeURIComponent(n));
+    paintPreview(p, n); openDrawer('#previewDrawer');
+  }catch(e){ toast(e.message); }
+}
+
+/* ------------------------------ drawers ---------------------------- */
+function openDrawer(sel){
+  $$('.drawer').forEach(d=>d.classList.remove('on'));
+  $(sel).classList.add('on'); $('#scrim').classList.add('on');
+}
+function closeDrawers(){ $$('.drawer').forEach(d=>d.classList.remove('on')); $('#scrim').classList.remove('on'); }
+$('#scrim').onclick = closeDrawers;
+$$('[data-close]').forEach(b=>b.onclick = closeDrawers);
+document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeDrawers(); });
+
+/* ------------------------------ send ------------------------------- */
+function buildSendForm(){
+  const wrap = $('#sAngles');
+  if(wrap) wrap.innerHTML = Object.keys(ANGLES).sort().map(k=>
+    `<div class="swatch on" data-angle="${k}">${k} · ${ANGLE_NAMES[k]||''} (${ANGLES[k].count})</div>`).join('');
+  $$('#sAngles .swatch').forEach(el=>el.onclick=()=>el.classList.toggle('on'));
+  const hint = $('#pwdTag');
+  if(hint) hint.textContent = DATA.has_password ? '· found in the environment' : '';
+  renderChips();
+}
+$$('input[name=mode]').forEach(r=>r.onchange=()=>{
+  $('#testToWrap').style.display = ($('input[name=mode]:checked').value==='test') ? '' : 'none';
+});
+$('#btnSendOpen').onclick = ()=>{ openDrawer('#sendDrawer'); refreshSecretUI(); };
+
+function remainingCount(){
+  const s = DATA.stats||{}; const cap = DATA.daily_cap||35;
+  return Math.max(0, (s.sendable||0) - (s.sent||0));
+}
+function renderOneClick(){
+  const left = remainingCount();
+  const cap = DATA.daily_cap||35;
+  const today = DATA.sent_today||0;
+  const batch = Math.min(cap - today, left);
+  $('#oneClickLabel').textContent = batch > 0 ? `Send ${batch} today` : 'Nothing left to send';
+  $('#btnOneClick').disabled = !LIVE || batch <= 0 || DATA.running;
+  const n = $('#oneClickNote');
+  if(!DATA.one_click_ready){
+    n.className = 'note';
+    n.innerHTML = `<b>One click to send:</b> paste your Gmail app password once in
+      <b>Send options</b>, tick “remember on this computer”, and this button sends your daily
+      batch from then on — no password, no settings, one press.`;
+  } else {
+    n.className = 'note';
+    n.innerHTML = `✓ <b>One-click ready.</b> App password saved on this computer
+      (${esc(DATA.password_source||'saved')}). Pressing the button sends
+      <b>${batch}</b> email${batch===1?'':'s'} now — ${today} of ${cap} already sent today,
+      ${left} still unsent. Same press tomorrow continues where this stopped.`;
+  }
+}
+$('#btnOneClick').onclick = async ()=>{
+  if(!LIVE) return toast('Static snapshot — run app.py to send');
+  if(!DATA.one_click_ready){
+    openDrawer('#sendDrawer'); refreshSecretUI();
+    return toast('Paste your app password once — then it is one click from here on');
+  }
+  if(!confirm(`Send up to ${$('#oneClickLabel').textContent.replace('Send ','').replace(' today','')} emails now from ${(DATA.settings||{}).from_email}?\n\nAlready-sent addresses are skipped automatically.`)) return;
+  try{
+    await api('/api/send', {method:'POST', body: JSON.stringify({mode:'live'})});
+    toast('Sending — watch the console in Send options');
+    openDrawer('#sendDrawer');
+    $('#runInfo').style.display=''; $('#btnStop').style.display='';
+    $('#console').textContent=''; poll();
+  }catch(e){ toast(e.message); openDrawer('#sendDrawer'); }
+};
+
+async function refreshSecretUI(){
+  const saved = (DATA.password_source === 'saved' || DATA.password_source === 'environment');
+  $('#btnForget').style.display = saved ? '' : 'none';
+  $('#sRemember').checked = !!DATA.one_click_ready;
+  if(saved){
+    const box = $('#pwdResult'); box.style.display='';
+    box.className = 'result ok';
+    box.textContent = `✓ App password saved (${DATA.password_source}) — live sends work with no password entry.`;
+  }
+}
+$('#btnForget').onclick = async ()=>{
+  if(!LIVE) return;
+  await api('/api/secret', {method:'POST', body: JSON.stringify({clear:true})});
+  toast('Saved password removed from this computer');
+  await loadState();
+  const box = $('#pwdResult'); box.className='result'; box.textContent='Saved password removed.';
+  refreshSecretUI();
+};
+if(!LIVE) $('#btnSendOpen').disabled = true;
+
+$('#btnTestPwd').onclick = async ()=>{
+  if(!LIVE) return toast('Static snapshot — run app.py to test.');
+  const box = $('#pwdResult'); box.style.display='';
+  box.className = 'result'; box.textContent = 'Checking with Gmail…';
+  try{
+    const r = await api('/api/smtp-check', {method:'POST', body: JSON.stringify({
+      password: $('#sPwd').value, remember: $('#sRemember').checked})});
+    box.className = 'result ' + (r.ok ? 'ok' : 'bad');
+    box.textContent = (r.ok ? '✓ ' : '✕ ') + r.msg;
+    if(r.ok) await loadState();
+  }catch(e){ box.className='result bad'; box.textContent = '✕ ' + e.message; }
+  $('#sPwd').value = '';
+};
+
+let PWD_WARNED = false;
+$('#btnStart').onclick = async ()=>{
+  if(!LIVE) return toast('Snapshot view — run app.py to send.');
+  const mode = $('input[name=mode]:checked').value;
+  const pwd = $('#sPwd').value.replace(/\s/g,'');
+  if((mode==='live'||mode==='test') && pwd && pwd.length !== 16 && !PWD_WARNED){
+    PWD_WARNED = true;
+    const box = $('#pwdResult'); box.style.display='';
+    box.className = 'result bad';
+    box.textContent = `✕ That password is ${pwd.length} characters. Google app passwords are exactly 16 — `
+      + 'an account password will be refused by Gmail. Create one at Google Account → Security → '
+      + 'App passwords, then press Start again. (Press Start once more to try anyway.)';
+    toast('Check the password — it does not look like an app password');
+    return;
+  }
+  PWD_WARNED = false;
+  const body = {
+    mode,
+    limit: parseInt($('#sLimit').value||'0')||0,
+    country: $('#sCountry').value,
+    only: $$('#sAngles .swatch.on').map(el=>el.dataset.angle),
+    delay_min: parseFloat($('#sDmin').value||'45'),
+    delay_max: parseFloat($('#sDmax').value||'90'),
+    password: $('#sPwd').value,
+    remember: $('#sRemember').checked,
+    test_to: $('#testTo').value.trim(),
+  };
+  if(body.only.length === Object.keys(ANGLES).length) body.only = [];
+  try{
+    await api('/api/send', {method:'POST', body: JSON.stringify(body)});
+    $('#sPwd').value = '';
+    $('#runInfo').style.display=''; $('#btnStop').style.display='';
+    $('#console').textContent = '';
+    poll();
+    toast(mode==='live' ? 'Live run started' : (mode==='test' ? 'Sending test emails' : 'Dry run started'));
+  }catch(e){ toast(e.message); }
+};
+$('#btnStop').onclick = async ()=>{ try{ await api('/api/stop',{method:'POST'}); toast('Stopping after this message…'); }catch(e){ toast(e.message); } };
+
+let POLL = null;
+async function poll(){
+  clearTimeout(POLL);
+  if(!LIVE){ return; }
+  try{
+    const p = await api('/api/progress');
+    p.log = p.log || [];
+    const pct = p.total ? Math.round(100*p.index/p.total) : 0;
+    $('#runBar').style.width = pct+'%';
+    $('#runText').textContent = p.total
+      ? `${p.index} / ${p.total} · sent ${p.ok} · failed ${p.fail}` + (p.current ? ` · ${p.current}` : '')
+      : 'starting…';
+    $('#console').innerHTML = (p.log||[]).map(l=>`<span class="${l.level||''}">[${l.t}] ${esc(l.msg)}</span>`).join('\n');
+    $('#console').scrollTop = $('#console').scrollHeight;
+    $('#btnStart').disabled = p.running;
+    $('#btnStop').style.display = p.running ? '' : 'none';
+    if(p.running) POLL = setTimeout(poll, 1200);
+    else { loadState(); if(p.finished) toast(`Run finished — sent ${p.ok}, failed ${p.fail}`); }
+  }catch(e){ /* server restarting */ POLL = setTimeout(poll, 2500); }
+}
+
+/* ------------------------------ templates -------------------------- */
+async function loadTemplates(){
+  if(!LIVE){
+    $('#tplWrap').innerHTML = `<div class="note">Template editing needs the running app — this is a static snapshot.</div>`;
+    return;
+  }
+  let t;
+  try{ t = await api('/api/templates'); }
+  catch(e){ $('#tplWrap').innerHTML = `<div class="note">Could not load templates: ${esc(e.message)}</div>`; return; }
+  $('#tplWrap').innerHTML = (t.angles||[]).map(a=>`
+    <div class="card" style="margin-bottom:14px" data-key="${esc(a.key)}">
+      <div class="k">Angle ${esc(a.key)} · ${esc(ANGLE_NAMES[a.key]||'')}</div>
+      <div class="hint" style="margin:8px 0 2px">Pitch angles rotate between the opening variants below, so no two recipients read the same email.</div>
+      <div class="field" style="margin-top:12px">
+        <label>Subject tails — one per line (rotated)</label>
+        <textarea class="t-hooks" rows="${Math.max(3, a.hooks.length)}" style="width:100%">${esc(a.hooks.join('\n'))}</textarea>
+      </div>
+      <div class="field">
+        <label>Opening variants — one per paragraph, blank line between each</label>
+        <textarea class="t-pain" rows="10" style="width:100%">${esc(a.pains.join('\n\n'))}</textarea>
+      </div>
+      <div class="field">
+        <label>The solution paragraph — product facts, same for everyone</label>
+        <textarea class="t-sol" rows="6" style="width:100%">${esc(a.solution)}</textarea>
+      </div>
+      <div class="field">
+        <label>Bullets — one per line</label>
+        <textarea class="t-bul" rows="${Math.max(4, a.bullets.length)}" style="width:100%">${esc(a.bullets.join('\n'))}</textarea>
+      </div>
+    </div>`).join('');
+}
+$('#saveTpl').onclick = async ()=>{
+  if(!LIVE) return toast('Run app.py to edit templates');
+  const out = {};
+  $$('#tplWrap .card[data-key]').forEach(c=>{
+    const key = c.dataset.key;
+    out[key] = {
+      hooks: c.querySelector('.t-hooks').value.split('\n').map(s=>s.trim()).filter(Boolean),
+      pain: c.querySelector('.t-pain').value.split(/\n\s*\n/).map(s=>s.trim()).filter(Boolean),
+      solution: c.querySelector('.t-sol').value.trim(),
+      bullets: c.querySelector('.t-bul').value.split('\n').map(s=>s.trim()).filter(Boolean),
+    };
+  });
+  await api('/api/templates', {method:'POST', body: JSON.stringify({templates: out})});
+  toast('Templates saved — new sends use them immediately');
+};
+
+/* ------------------------------ activity --------------------------- */
+async function loadActivity(){
+  if(!LIVE){
+    $('#actRows').innerHTML = `<tr><td colspan="6" class="empty">Activity log lives in sent_log.csv — open the running app to see it here.</td></tr>`;
+    return;
+  }
+  let a;
+  try{ a = await api('/api/activity'); }
+  catch(e){ $('#actRows').innerHTML = `<tr><td colspan="6" class="empty">Could not read the log: ${esc(e.message)}</td></tr>`; return; }
+  if(!(a.rows||[]).length){ $('#actRows').innerHTML = `<tr><td colspan="6" class="empty">Nothing sent yet.</td></tr>`; return; }
+  $('#actRows').innerHTML = (a.rows||[]).map(r=>`<tr>
+    <td class="sub">${esc((r.timestamp||'').replace('T',' '))}</td>
+    <td class="sub">${esc(r.n)}</td>
+    <td>${esc(r.organisation)}</td>
+    <td class="mono">${esc(r.email)}</td>
+    <td class="sub">${esc(r.subject)}</td>
+    <td><span class="pill ${r.status==='SENT'?'sent':(r.status==='FAILED'?'none':'ready')}">${esc(r.status)}</span></td>
+  </tr>`).join('');
+}
+$('#btnActRefresh').onclick = loadActivity;
+
+/* ------------------------------ settings --------------------------- */
+const SET_FIELDS = [
+  ['sender_name','Your name'],['sender_title','Your title'],['company_name','Company'],
+  ['website','Website'],['demo_link','Live demo link'],
+  ['whatsapp','WhatsApp number'],['calendar_link','Booking link (optional)'],['phone','Phone'],
+  ['postal_address','Postal address (spam-law footer)'],
+];
+const SET_FIELDS2 = [
+  ['from_email','Send from'],['reply_to','Reply-to'],['daily_cap','Daily cap (the one-click button sends this many)'],
+  ['subject_patterns','Subject patterns — comma separated, {org} {hook} {city} {country}'],
+];
+function fillSettings(){
+  const s = DATA.settings || {};
+  $('#setForm').innerHTML  = SET_FIELDS.map(([k,l])=>
+    `<div class="field"><label>${l}</label><input type="text" data-k="${k}" value="${esc(s[k]||'')}"></div>`).join('')
+    + `<div class="field"><label>Bilingual (add Arabic paragraph)</label>
+         <div class="swatches"><div class="swatch ${s.bilingual?'on':''}" data-k="bilingual">Include Arabic block</div></div></div>`;
+  $('#setForm2').innerHTML = SET_FIELDS2.map(([k,l])=>{
+    const v = Array.isArray(s[k]) ? s[k].join(' | ') : (s[k]||'');
+    return `<div class="field"><label>${l}</label><input type="text" data-k="${k}" data-arr="${Array.isArray(s[k])}" value="${esc(v)}"></div>`;
+  }).join('')
+    + `<div class="field"><label>Keep a copy (BCC myself)</label>
+         <div class="swatches"><div class="swatch ${s.bcc_self?'on':''}" data-k="bcc_self">BCC ${esc(s.from_email||'')}</div></div></div>`;
+  $$('#setForm .swatch, #setForm2 .swatch').forEach(el=>el.onclick=()=>el.classList.toggle('on'));
+}
+$('#saveSet').onclick = async ()=>{
+  if(!LIVE) return toast('Run app.py to save settings');
+  const out = {};
+  $$('#setForm input, #setForm2 input').forEach(i=>{
+    out[i.dataset.k] = (i.dataset.arr === 'true')
+      ? i.value.split('|').map(x=>x.trim()).filter(Boolean)
+      : i.value.trim();
+  });
+  $$('#setForm .swatch, #setForm2 .swatch').forEach(el=>out[el.dataset.k] = el.classList.contains('on'));
+  await api('/api/settings', {method:'POST', body: JSON.stringify(out)});
+  toast('Settings saved'); await loadState();
+};
+
+/* ------------------------------ boot ------------------------------- */
+window.__boot = async function(){
+  $$('.nav button').forEach(b=>b.onclick=()=>{
+    $$('.nav button').forEach(x=>x.classList.remove('on')); b.classList.add('on');
+    $$('.view').forEach(v=>v.classList.remove('on'));
+    $('#view-'+b.dataset.view).classList.add('on');
+    if(b.dataset.view==='templates') loadTemplates();
+    if(b.dataset.view==='activity') loadActivity();
+  });
+  $('#q').oninput = e => { FILTER.q = e.target.value; renderRows(); };
+  $('#fAngle').onchange = e => { FILTER.angle = e.target.value; renderRows(); };
+  $('#fStatus').onchange = e => { FILTER.status = e.target.value; renderRows(); };
+  $('#btnRefresh').onclick = async ()=>{ await loadState(); loadActivity(); toast('Refreshed'); };
+  await loadState();
+  await loadActivity();
+  if(LIVE){
+    const p = await api('/api/progress');
+    if(p.running){ $('#runInfo').style.display=''; $('#btnStop').style.display=''; poll(); }
+    if(!SNAP) loadTemplates();
+  } else {
+    loadTemplates();
+    $('#btnRefresh').outerHTML = '<span class="sub" style="align-self:center">static snapshot — start app.py for the live version</span>';
+  }
+};
+window.__boot();
+</script>
+</body>
+</html>
