@@ -31,6 +31,39 @@ python3 app.py          →  http://localhost:8000
 ```
 (Already running in this workspace as the **Outreach dashboard** preview.)
 
+## Host a protected snapshot on Vercel
+
+This project also supports a **password-protected, read-only Vercel deployment**. The existing
+server is a long-running local HTTP server that edits files and sends mail in a background thread;
+those pieces are not durable in Vercel's serverless runtime. The hosted snapshot keeps browsing,
+search, filters and email previews, while upload, editing, settings, activity and sending remain
+available in the local app.
+
+The snapshot embeds the lead list and generated email previews, so the Vercel password gate is
+required. `middleware.ts` fails closed if the password is missing or shorter than 24 characters.
+Set `DASHBOARD_PASSWORD` in the Vercel project's **Settings → Environment Variables** for Preview
+and Production before deploying (use a unique secret of at least 24 characters). At the browser's
+sign-in prompt, use username `outreach` and that password. Also enable Vercel Deployment Protection
+for the project if you want an additional account-level gate. Do not publish this snapshot without
+access protection.
+
+```bash
+# Refresh the embedded snapshot after changing leads or email copy
+python3 _work/make_snapshot.py
+
+# Build the one-file static deployment locally (Vercel runs this on deploy too)
+npm ci
+npm run build
+
+# Deploy after linking this repository to your Vercel account
+npx vercel --prod
+```
+
+The generated `public/` folder is intentionally git-ignored; Vercel creates it from
+`dashboard_snapshot.html` during each build. `.vercelignore` keeps the raw CSVs, local sender and
+uploaded files out of the deployment bundle. The Vercel version is read-only and reflects the
+snapshot at the last deployment.
+
 ### Upload a CSV — any CSV
 Top of the Leads tab: **Upload CSV**, or drag a file onto the panel. That's the whole workflow
 next month: export a new lead list, drop it in, and it becomes the active list.
