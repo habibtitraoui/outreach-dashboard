@@ -1,0 +1,27 @@
+# Keep the Vercel upload limited to the static snapshot build inputs.
+.git/
+.vercel/
+node_modules/
+public/
+__pycache__/
+_work/
+uploads/
+ui/
+
+# The static snapshot is generated from this file; no local server or raw lead files are needed.
+app.py
+csv_import.py
+email_kit.py
+send_emails.py
+start.bat
+start.sh
+dataset.json
+ui_overrides.json
+ui_settings.json
+ui_templates.json
+.gmail_app_password
+.env*
+previews/
+*.csv
+*.log
+*.pyc

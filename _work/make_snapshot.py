@@ -1,6 +1,10 @@
 """dashboard_snapshot.html — the same interface with everything embedded.""" 
 import json, os, sys, hashlib
-sys.path.insert(0, '/home/user'); os.chdir('/home/user')
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT))
+os.chdir(ROOT)
 import app
 
 state = {"leads": [], "stats": {}, "angles": {}, "settings": app.load_settings(),

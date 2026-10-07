@@ -4,8 +4,15 @@
 # Runtime / generated logs
 sent_log.csv
 
+# Vercel static build output (generated from dashboard_snapshot.html)
+public/
+.vercel/
+
 # Python
 __pycache__/
+
+# Node / Vercel
+node_modules/
 *.pyc
 *.pyo
 .venv/
