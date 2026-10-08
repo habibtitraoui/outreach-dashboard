@@ -6,6 +6,9 @@
     "build": "node scripts/build-vercel.mjs"
   },
   "dependencies": {
-    "@vercel/functions": "^3.9.11"
+    "@upstash/qstash": "^2.8.0",
+    "@vercel/blob": "^0.27.0",
+    "@vercel/functions": "^3.9.11",
+    "googleapis": "^144.0.0"
   }
 }
